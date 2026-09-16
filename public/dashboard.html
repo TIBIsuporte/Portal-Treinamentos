@@ -2,33 +2,372 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Treinamentos - Painel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Treinamentos Corporativos</title>
+    <!-- Importa o cliente do Supabase para o front-end -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f1f5f9; color: #334155; }
-        header { background: #0f172a; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        header a { color: #f87171; text-decoration: none; font-weight: bold; }
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        .video-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
-        .video-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 4px; }
-        h3 { margin-top: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #1a202c;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+        }
+
+        .btn-sair {
+            background-color: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-sair:hover {
+            background-color: #c53030;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            border-left: 4px solid #3182ce;
+            padding-left: 10px;
+        }
+
+        /* Grade de Cards */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Proporção 16:9 */
+            background-color: #000;
+        }
+
+        .thumbnail-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+
+        .video-card:hover .play-icon {
+            background: #e53e3e;
+        }
+
+        .card-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .card-info h3 {
+            font-size: 1rem;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+
+        .card-info p {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        /* Modal (Zoom do Vídeo) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 850px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            animation: modalOpen 0.3s ease;
+        }
+
+        @keyframes modalOpen {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+        }
+
+        .modal-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-details {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-details h2 {
+            font-size: 1.3rem;
+            color: #1a202c;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .modal-desc {
+            font-size: 0.95rem;
+            color: #718096;
+            line-height: 1.5;
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #cbd5e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            color: #718096;
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 <body>
+
     <header>
-        <h2>Portal de Treinamentos Corporativos</h2>
-        <a href="/api/logout">Sair</a>
+        <h1>Portal de Treinamentos Corporativos</h1>
+        <button class="btn-sair" onclick="sair()">Sair</button>
     </header>
+
     <div class="container">
-        <div class="video-grid">
-            <div class="video-card">
-                <h3>Treinamento Óptica Básica - Ajustes e Medidas</h3>
-                <div class="video-container">
-                    <iframe src="https://www.youtube.com/embed/dA5RzQf5q50" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>        
+        <h2 class="section-title">Módulos Disponíveis</h2>
+        <div id="videoGrid" class="video-grid">
+            <div class="loading">Carregando treinamentos...</div>
         </div>
     </div>
+
+    <!-- Modal / Zoom do Vídeo -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="fecharModal()">&times;</button>
+            <div class="modal-video-container">
+                <iframe id="modalIframe" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="modal-details">
+                <h2 id="modalTitulo">Título do Treinamento</h2>
+                <div class="modal-meta">
+                    <span id="modalMinistrante">👤 Ministrante: -</span>
+                    <span id="modalData">📅 Data: -</span>
+                </div>
+                <div id="modalDesc" class="modal-desc">Descrição do treinamento...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chaves públicas do Supabase inseridas automaticamente pelo backend ou configuradas
+        const SUPABASE_URL = "https://vqgextckdtpkflekthsy.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_v63x3ap-IRGRyBnI0XpkGQ_61_01w3V";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function carregarVideos() {
+            const grid = document.getElementById('videoGrid');
+            
+            try {
+                const { data: videos, error } = await supabaseClient
+                    .from('videos')
+                    .select('*')
+                    .order('id', { ascending: true });
+
+                if (error) throw error;
+
+                if (!videos || videos.length === 0) {
+                    grid.innerHTML = '<div class="loading">Nenhum treinamento cadastrado no momento.</div>';
+                    return;
+                }
+
+                grid.innerHTML = '';
+
+                videos.forEach(video => {
+                    // Miniatura oficial do YouTube gerada automaticamente pelo ID
+                    const thumbnailUrl = `https://img.youtube.com/vi/${video.youtube_id}/hqdefault.jpg`;
+
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.onclick = () => abrirModal(video);
+
+                    card.innerHTML = `
+                        <div class="thumbnail-container">
+                            <img src="${thumbnailUrl}" alt="${video.titulo}">
+                            <div class="play-icon">&#9658;</div>
+                        </div>
+                        <div class="card-info">
+                            <h3>${video.titulo}</h3>
+                            <p>👤 ${video.ministrante || 'Equipe'}</p>
+                            <p>📅 ${video.data_ministrada || ''}</p>
+                        </div>
+                    `;
+
+                    grid.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error('Erro ao buscar vídeos:', err);
+                grid.innerHTML = '<div class="loading" style="color: #e53e3e;">Erro ao carregar a lista de treinamentos.</div>';
+            }
+        }
+
+        function abrirModal(video) {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('modalIframe');
+            const titulo = document.getElementById('modalTitulo');
+            const ministrante = document.getElementById('modalMinistrante');
+            const data = document.getElementById('modalData');
+            const desc = document.getElementById('modalDesc');
+
+            iframe.src = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1`;
+            titulo.textContent = video.titulo;
+            ministrante.textContent = `👤 Ministrante: ${video.ministrante || 'Não informado'}`;
+            data.textContent = `📅 Data: ${video.data_ministrada || 'Não informada'}`;
+            desc.textContent = video.descricao || 'Nenhuma descrição detalhada informada.';
+
+            modal.style.display = 'flex';
+        }
+
+        function fecharModal() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('modalIframe');
+            
+            iframe.src = ''; // Para o vídeo ao fechar
+            modal.style.display = 'none';
+        }
+
+        function sair() {
+            window.location.href = '/login.html';
+        }
+
+        // Fecha o modal ao clicar fora da caixa branca
+        window.onclick = function(event) {
+            const modal = document.getElementById('videoModal');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
+
+        // Carrega os vídeos ao abrir a página
+        carregarVideos();
+    </script>
 </body>
 </html>
