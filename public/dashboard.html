@@ -39,9 +39,10 @@
             gap: 15px;
         }
 
-        .user-email {
-            font-size: 0.9rem;
+        .user-name {
+            font-size: 0.95rem;
             color: #cbd5e0;
+            font-weight: 500;
         }
 
         .btn-sair {
@@ -307,7 +308,7 @@
     <header>
         <h1>Portal de Treinamentos Corporativos</h1>
         <div class="user-info">
-            <span id="userEmail" class="user-email"></span>
+            <span id="userName" class="user-name">Carregando...</span>
             <button class="btn-sair" onclick="sair()">Sair</button>
         </div>
     </header>
@@ -341,35 +342,38 @@
     </div>
 
     <script>
-        // Configuração do Supabase
-        const SUPABASE_URL = "https://vqgextckdtpkflekthsy.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_v63x3ap-IRGRyBnI0XpkGQ_61_01w3V";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        let supabaseClient = null;
         let todosVideos = [];
 
-        // Verificar autenticação ao carregar a página
-        async function verificarSessao() {
+        // Inicializa buscando as configurações e o usuário autenticado de forma segura no backend
+        async function inicializarPortal() {
             try {
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
-                
-                if (error || !session) {
-                    // Redireciona para o login caso não esteja autenticado
-                    window.location.href = 'login.html';
+                // 1. Busca o nome do usuário logado na sessão do servidor
+                const userRes = await fetch('/api/session-user');
+                if (!userRes.ok) {
+                    window.location.href = '/login.html';
                     return;
                 }
-
-                // Exibe o e-mail do usuário logado se o elemento existir
-                const userEmailEl = document.getElementById('userEmail');
-                if (userEmailEl && session.user) {
-                    userEmailEl.textContent = session.user.email;
+                const userData = await userRes.json();
+                const userNameEl = document.getElementById('userName');
+                if (userNameEl) {
+                    userNameEl.textContent = `👤 Usuário: ${userData.usuario}`;
                 }
 
-                // Carrega os vídeos após confirmar a sessão
+                // 2. Busca as chaves do Supabase protegidas no .env via servidor
+                const configRes = await fetch('/api/config');
+                if (!configRes.ok) throw new Error('Falha ao carregar credenciais.');
+                const config = await configRes.json();
+                
+                // Instancia o cliente do Supabase de forma oculta do código estático
+                supabaseClient = supabase.createClient(config.supabaseUrl, config.supabaseKey);
+
+                // 3. Carrega os vídeos da tabela 'videos'
                 carregarVideos();
+
             } catch (err) {
-                console.error('Erro ao verificar sessão:', err);
-                window.location.href = 'login.html';
+                console.error('Erro na inicialização do portal:', err);
+                document.getElementById('videoGrid').innerHTML = '<div class="loading" style="color: #e53e3e;">Erro de conexão com o servidor.</div>';
             }
         }
 
@@ -409,7 +413,6 @@
             grid.innerHTML = '';
 
             videos.forEach(video => {
-                // Miniatura oficial do YouTube gerada automaticamente pelo ID
                 const thumbnailUrl = `https://img.youtube.com/vi/${video.youtube_id}/hqdefault.jpg`;
 
                 const card = document.createElement('div');
@@ -428,7 +431,7 @@
                     </div>
                 `;
 
-                grid.appendChild(card);
+                    grid.appendChild(card);
             });
         }
 
@@ -466,20 +469,14 @@
             const modal = document.getElementById('videoModal');
             const iframe = document.getElementById('modalIframe');
             
-            iframe.src = ''; // Para o vídeo ao fechar
+            iframe.src = ''; 
             modal.style.display = 'none';
         }
 
-        async function sair() {
-            try {
-                await supabaseClient.auth.signOut();
-            } catch (err) {
-                console.error('Erro ao encerrar sessão:', err);
-            }
-            window.location.href = 'login.html';
+        function sair() {
+            window.location.href = '/api/logout';
         }
 
-        // Fecha o modal ao clicar fora da caixa branca
         window.onclick = function(event) {
             const modal = document.getElementById('videoModal');
             if (event.target == modal) {
@@ -487,7 +484,6 @@
             }
         }
 
-        // Função auxiliar para evitar XSS básico ao renderizar strings em atributos/HTML
         function escapeHtml(text) {
             const map = {
                 '&': '&amp;',
@@ -499,8 +495,8 @@
             return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
-        // Inicia verificando a sessão ao carregar a página
-        verificarSessao();
+        // Executa a inicialização ao carregar a página
+        inicializarPortal();
     </script>
 </body>
 </html>
