@@ -528,7 +528,7 @@
 
         function renderizarDocumentos(docs) {
             const grid = document.getElementById('docGrid');
-            if (docs.length === 0) {
+            if (!docs || docs.length === 0) {
                 grid.innerHTML = '<div class="loading">Nenhum documento encontrado.</div>';
                 return;
             }
@@ -547,13 +547,12 @@
                     <div class="card-info">
                         <h3>${escapeHtml(doc.titulo)}</h3>
                         <p>📂 ${escapeHtml(doc.categoria || 'Geral')}</p>
-                        <p>📅 ${escapeHtml(doc.data_cadastro || '')}</p>
+                        <p>📅 ${escapeHtml(doc.data_cadastro || 'Disponível')}</p>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
-
         // Abrir Vídeo no Modal (Com parâmetros estritos do YouTube para bloquear compartilhamento e logos indesejadas)
         function abrirModalVideo(video) {
             const modal = document.getElementById('mediaModal');
