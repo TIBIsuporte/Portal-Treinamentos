@@ -1,4 +1,0 @@
-PORT=3000
-SUPABASE_URL=https://vqgextckdtpkflekthsy.supabase.co
-SUPABASE_KEY=sb_publishable_v63x3aP-IRGRyBnIOXpkGQ_6l_01w3V
-SESSION_SECRET=uma_senha_super_secreta_para_criptografar_a_sessao
