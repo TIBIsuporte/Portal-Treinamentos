@@ -559,8 +559,8 @@
             const modal = document.getElementById('mediaModal');
             const iframe = document.getElementById('modalIframe');
             
-            // Parâmetros do YouTube: autoplay=1, rel=0 (não mostra vídeos recomendados de terceiros), modestbranding=1 (minimiza logo do YouTube), controls=1
-            iframe.src = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1&rel=0&modestbranding=1&controls=1`;
+            // Força parâmetros restritivos máximos da API do YouTube
+            iframe.src = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`;
             
             document.getElementById('modalTitulo').textContent = video.titulo;
             document.getElementById('modalMeta1').textContent = `👤 Ministrante: ${video.ministrante || 'Não informado'}`;
@@ -569,7 +569,7 @@
 
             modal.style.display = 'flex';
         }
-
+        
         // Abrir Documento/PDF no Modal Integrado (Bloqueia download direto forçando visualizador web)
         function abrirModalDoc(doc) {
             const modal = document.getElementById('mediaModal');
