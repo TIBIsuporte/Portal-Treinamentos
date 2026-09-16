@@ -70,6 +70,11 @@ app.get('/dashboard.html', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
+// Redireciona a raiz para a tela de login
+app.get('/', (req, res) => {
+    res.redirect('/login.html');
+});
+
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
