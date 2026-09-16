@@ -33,6 +33,17 @@
             font-size: 1.5rem;
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-email {
+            font-size: 0.9rem;
+            color: #cbd5e0;
+        }
+
         .btn-sair {
             background-color: #e53e3e;
             color: white;
@@ -54,12 +65,33 @@
             padding: 0 20px;
         }
 
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
         .section-title {
             font-size: 1.4rem;
-            margin-bottom: 20px;
             color: #2d3748;
             border-left: 4px solid #3182ce;
             padding-left: 10px;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            width: 300px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
         }
 
         /* Grade de Cards */
@@ -133,6 +165,10 @@
             font-size: 1rem;
             color: #2d3748;
             line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .card-info p {
@@ -190,6 +226,10 @@
             justify-content: center;
         }
 
+        .close-modal:hover {
+            background: #c53030;
+        }
+
         .modal-video-container {
             position: relative;
             width: 100%;
@@ -230,9 +270,10 @@
             color: #718096;
             line-height: 1.5;
             background: #f7fafc;
-            padding: 10px;
+            padding: 12px;
             border-radius: 4px;
             border-left: 3px solid #cbd5e0;
+            white-space: pre-line;
         }
 
         .loading {
@@ -242,17 +283,40 @@
             color: #718096;
             grid-column: 1 / -1;
         }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+                text-align: center;
+            }
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            .search-box {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Portal de Treinamentos Corporativos</h1>
-        <button class="btn-sair" onclick="sair()">Sair</button>
+        <div class="user-info">
+            <span id="userEmail" class="user-email"></span>
+            <button class="btn-sair" onclick="sair()">Sair</button>
+        </div>
     </header>
 
     <div class="container">
-        <h2 class="section-title">Módulos Disponíveis</h2>
+        <div class="section-header">
+            <h2 class="section-title">Módulos Disponíveis</h2>
+            <input type="text" id="searchInput" class="search-box" placeholder="Pesquisar treinamento ou ministrante..." oninput="filtrarVideos()">
+        </div>
         <div id="videoGrid" class="video-grid">
             <div class="loading">Carregando treinamentos...</div>
         </div>
@@ -263,7 +327,7 @@
         <div class="modal-content">
             <button class="close-modal" onclick="fecharModal()">&times;</button>
             <div class="modal-video-container">
-                <iframe id="modalIframe" src="" frameborder="0" allowfullscreen></iframe>
+                <iframe id="modalIframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <div class="modal-details">
                 <h2 id="modalTitulo">Título do Treinamento</h2>
@@ -277,10 +341,37 @@
     </div>
 
     <script>
-        // Chaves públicas do Supabase inseridas automaticamente pelo backend ou configuradas
+        // Configuração do Supabase
         const SUPABASE_URL = "https://vqgextckdtpkflekthsy.supabase.co";
         const SUPABASE_KEY = "sb_publishable_v63x3ap-IRGRyBnI0XpkGQ_61_01w3V";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let todosVideos = [];
+
+        // Verificar autenticação ao carregar a página
+        async function verificarSessao() {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                
+                if (error || !session) {
+                    // Redireciona para o login caso não esteja autenticado
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Exibe o e-mail do usuário logado se o elemento existir
+                const userEmailEl = document.getElementById('userEmail');
+                if (userEmailEl && session.user) {
+                    userEmailEl.textContent = session.user.email;
+                }
+
+                // Carrega os vídeos após confirmar a sessão
+                carregarVideos();
+            } catch (err) {
+                console.error('Erro ao verificar sessão:', err);
+                window.location.href = 'login.html';
+            }
+        }
 
         async function carregarVideos() {
             const grid = document.getElementById('videoGrid');
@@ -298,35 +389,60 @@
                     return;
                 }
 
-                grid.innerHTML = '';
-
-                videos.forEach(video => {
-                    // Miniatura oficial do YouTube gerada automaticamente pelo ID
-                    const thumbnailUrl = `https://img.youtube.com/vi/${video.youtube_id}/hqdefault.jpg`;
-
-                    const card = document.createElement('div');
-                    card.className = 'video-card';
-                    card.onclick = () => abrirModal(video);
-
-                    card.innerHTML = `
-                        <div class="thumbnail-container">
-                            <img src="${thumbnailUrl}" alt="${video.titulo}">
-                            <div class="play-icon">&#9658;</div>
-                        </div>
-                        <div class="card-info">
-                            <h3>${video.titulo}</h3>
-                            <p>👤 ${video.ministrante || 'Equipe'}</p>
-                            <p>📅 ${video.data_ministrada || ''}</p>
-                        </div>
-                    `;
-
-                    grid.appendChild(card);
-                });
+                todosVideos = videos;
+                renderizarVideos(todosVideos);
 
             } catch (err) {
                 console.error('Erro ao buscar vídeos:', err);
                 grid.innerHTML = '<div class="loading" style="color: #e53e3e;">Erro ao carregar a lista de treinamentos.</div>';
             }
+        }
+
+        function renderizarVideos(videos) {
+            const grid = document.getElementById('videoGrid');
+            
+            if (videos.length === 0) {
+                grid.innerHTML = '<div class="loading">Nenhum treinamento encontrado para a busca.</div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+
+            videos.forEach(video => {
+                // Miniatura oficial do YouTube gerada automaticamente pelo ID
+                const thumbnailUrl = `https://img.youtube.com/vi/${video.youtube_id}/hqdefault.jpg`;
+
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.onclick = () => abrirModal(video);
+
+                card.innerHTML = `
+                    <div class="thumbnail-container">
+                        <img src="${thumbnailUrl}" alt="${escapeHtml(video.titulo)}">
+                        <div class="play-icon">&#9658;</div>
+                    </div>
+                    <div class="card-info">
+                        <h3>${escapeHtml(video.titulo)}</h3>
+                        <p>👤 ${escapeHtml(video.ministrante || 'Equipe')}</p>
+                        <p>📅 ${escapeHtml(video.data_ministrada || '')}</p>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function filtrarVideos() {
+            const termo = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            const filtrados = todosVideos.filter(video => {
+                const titulo = (video.titulo || '').toLowerCase();
+                const ministrante = (video.ministrante || '').toLowerCase();
+                const descricao = (video.descricao || '').toLowerCase();
+                return titulo.includes(termo) || ministrante.includes(termo) || descricao.includes(termo);
+            });
+
+            renderizarVideos(filtrados);
         }
 
         function abrirModal(video) {
@@ -354,8 +470,13 @@
             modal.style.display = 'none';
         }
 
-        function sair() {
-            window.location.href = '/login.html';
+        async function sair() {
+            try {
+                await supabaseClient.auth.signOut();
+            } catch (err) {
+                console.error('Erro ao encerrar sessão:', err);
+            }
+            window.location.href = 'login.html';
         }
 
         // Fecha o modal ao clicar fora da caixa branca
@@ -366,8 +487,20 @@
             }
         }
 
-        // Carrega os vídeos ao abrir a página
-        carregarVideos();
+        // Função auxiliar para evitar XSS básico ao renderizar strings em atributos/HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // Inicia verificando a sessão ao carregar a página
+        verificarSessao();
     </script>
 </body>
 </html>
