@@ -60,10 +60,48 @@
             background-color: #c53030;
         }
 
+        /* Sistema de Abas */
+        .nav-tabs {
+            background-color: #2d3748;
+            display: flex;
+            padding: 0 40px;
+            gap: 10px;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #a0aec0;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s, border-bottom 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            color: white;
+        }
+
+        .tab-btn.active {
+            color: white;
+            border-bottom: 3px solid #3182ce;
+        }
+
         .container {
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 30px auto;
             padding: 0 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .section-header {
@@ -95,14 +133,14 @@
             box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
         }
 
-        /* Grade de Cards */
-        .video-grid {
+        /* Grades (Cards) */
+        .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
         }
 
-        .video-card {
+        .card {
             background: white;
             border-radius: 8px;
             overflow: hidden;
@@ -113,7 +151,7 @@
             flex-direction: column;
         }
 
-        .video-card:hover {
+        .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 15px rgba(0,0,0,0.1);
         }
@@ -121,7 +159,7 @@
         .thumbnail-container {
             position: relative;
             width: 100%;
-            padding-top: 56.25%; /* Proporção 16:9 */
+            padding-top: 56.25%; /* 16:9 */
             background-color: #000;
         }
 
@@ -132,6 +170,26 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .doc-thumbnail-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ebf8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #3182ce;
+            font-weight: bold;
+            gap: 8px;
+        }
+
+        .doc-thumbnail-placeholder span {
+            font-size: 2.5rem;
         }
 
         .play-icon {
@@ -151,7 +209,7 @@
             transition: background 0.2s;
         }
 
-        .video-card:hover .play-icon {
+        .card:hover .play-icon {
             background: #e53e3e;
         }
 
@@ -177,7 +235,7 @@
             color: #718096;
         }
 
-        /* Modal (Zoom do Vídeo) */
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -195,7 +253,7 @@
         .modal-content {
             background: white;
             width: 100%;
-            max-width: 850px;
+            max-width: 900px;
             border-radius: 8px;
             overflow: hidden;
             position: relative;
@@ -231,19 +289,20 @@
             background: #c53030;
         }
 
-        .modal-video-container {
+        .modal-media-container {
             position: relative;
             width: 100%;
-            padding-top: 56.25%;
-            background: #000;
+            height: 70vh; /* Altura generosa para leitura de PDF */
+            background: #2d3748;
         }
 
-        .modal-video-container iframe {
+        .modal-media-container iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            border: none;
         }
 
         .modal-details {
@@ -251,6 +310,8 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            max-height: 25vh;
+            overflow-y: auto;
         }
 
         .modal-details h2 {
@@ -286,7 +347,7 @@
         }
 
         @media (max-width: 768px) {
-            header {
+            header, .nav-tabs {
                 flex-direction: column;
                 gap: 15px;
                 padding: 15px;
@@ -313,30 +374,52 @@
         </div>
     </header>
 
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Módulos Disponíveis</h2>
-            <input type="text" id="searchInput" class="search-box" placeholder="Pesquisar treinamento ou ministrante..." oninput="filtrarVideos()">
-        </div>
-        <div id="videoGrid" class="video-grid">
-            <div class="loading">Carregando treinamentos...</div>
+    <!-- Barra de Abas Superiores -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="trocarTab('videos')">🎬 Treinamentos em Vídeo</button>
+        <button class="tab-btn" onclick="trocarTab('documentos')">📚 Manuais e Documentos</button>
+    </nav>
+
+    <!-- CONTEÚDO: ABA VÍDEOS -->
+    <div id="tabVideos" class="tab-content active">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Módulos de Vídeos Disponíveis</h2>
+                <input type="text" id="searchVideoInput" class="search-box" placeholder="Pesquisar vídeo ou ministrante..." oninput="filtrarVideos()">
+            </div>
+            <div id="videoGrid" class="grid">
+                <div class="loading">Carregando treinamentos...</div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal / Zoom do Vídeo -->
-    <div id="videoModal" class="modal">
+    <!-- CONTEÚDO: ABA DOCUMENTOS -->
+    <div id="tabDocumentos" class="tab-content">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Biblioteca de Manuais e Apostilas</h2>
+                <input type="text" id="searchDocInput" class="search-box" placeholder="Pesquisar manual ou categoria..." oninput="filtrarDocumentos()">
+            </div>
+            <div id="docGrid" class="grid">
+                <div class="loading">Carregando documentos...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Universal (Vídeos e Documentos) -->
+    <div id="mediaModal" class="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="fecharModal()">&times;</button>
-            <div class="modal-video-container">
-                <iframe id="modalIframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="modal-media-container">
+                <iframe id="modalIframe" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
             </div>
             <div class="modal-details">
-                <h2 id="modalTitulo">Título do Treinamento</h2>
+                <h2 id="modalTitulo">Título</h2>
                 <div class="modal-meta">
-                    <span id="modalMinistrante">👤 Ministrante: -</span>
-                    <span id="modalData">📅 Data: -</span>
+                    <span id="modalMeta1">👤 -</span>
+                    <span id="modalMeta2">📅 -</span>
                 </div>
-                <div id="modalDesc" class="modal-desc">Descrição do treinamento...</div>
+                <div id="modalDesc" class="modal-desc">Descrição...</div>
             </div>
         </div>
     </div>
@@ -344,81 +427,73 @@
     <script>
         let supabaseClient = null;
         let todosVideos = [];
+        let todosDocumentos = [];
 
-        // Inicializa buscando as configurações e o usuário autenticado de forma segura no backend
+        // Inicialização Segura
         async function inicializarPortal() {
             try {
-                // 1. Busca o nome do usuário logado na sessão do servidor
                 const userRes = await fetch('/api/session-user');
                 if (!userRes.ok) {
                     window.location.href = '/login.html';
                     return;
                 }
                 const userData = await userRes.json();
-                const userNameEl = document.getElementById('userName');
-                if (userNameEl) {
-                    userNameEl.textContent = `👤 Usuário: ${userData.usuario}`;
-                }
+                document.getElementById('userName').textContent = `👤 Usuário: ${userData.usuario}`;
 
-                // 2. Busca as chaves do Supabase protegidas no .env via servidor
                 const configRes = await fetch('/api/config');
-                if (!configRes.ok) throw new Error('Falha ao carregar credenciais.');
+                if (!configRes.ok) throw new Error('Falha nas credenciais.');
                 const config = await configRes.json();
                 
-                // Instancia o cliente do Supabase de forma oculta do código estático
                 supabaseClient = supabase.createClient(config.supabaseUrl, config.supabaseKey);
 
-                // 3. Carrega os vídeos da tabela 'videos'
                 carregarVideos();
+                carregarDocumentos();
 
             } catch (err) {
-                console.error('Erro na inicialização do portal:', err);
+                console.error('Erro:', err);
                 document.getElementById('videoGrid').innerHTML = '<div class="loading" style="color: #e53e3e;">Erro de conexão com o servidor.</div>';
             }
         }
 
+        // Troca de Abas
+        function trocarTab(aba) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (aba === 'videos') {
+                document.querySelector('button[onclick="trocarTab(\'videos\')"]').classList.add('active');
+                document.getElementById('tabVideos').classList.add('active');
+            } else {
+                document.querySelector('button[onclick="trocarTab(\'documentos\')"]').classList.add('active');
+                document.getElementById('tabDocumentos').classList.add('active');
+            }
+        }
+
+        // Carregar Vídeos
         async function carregarVideos() {
             const grid = document.getElementById('videoGrid');
-            
             try {
-                const { data: videos, error } = await supabaseClient
-                    .from('videos')
-                    .select('*')
-                    .order('id', { ascending: true });
-
+                const { data: videos, error } = await supabaseClient.from('videos').select('*').order('id', { ascending: true });
                 if (error) throw error;
-
-                if (!videos || videos.length === 0) {
-                    grid.innerHTML = '<div class="loading">Nenhum treinamento cadastrado no momento.</div>';
-                    return;
-                }
-
-                todosVideos = videos;
+                todosVideos = videos || [];
                 renderizarVideos(todosVideos);
-
             } catch (err) {
-                console.error('Erro ao buscar vídeos:', err);
-                grid.innerHTML = '<div class="loading" style="color: #e53e3e;">Erro ao carregar a lista de treinamentos.</div>';
+                grid.innerHTML = '<div class="loading" style="color: #e53e3e;">Erro ao carregar vídeos.</div>';
             }
         }
 
         function renderizarVideos(videos) {
             const grid = document.getElementById('videoGrid');
-            
             if (videos.length === 0) {
-                grid.innerHTML = '<div class="loading">Nenhum treinamento encontrado para a busca.</div>';
+                grid.innerHTML = '<div class="loading">Nenhum vídeo encontrado.</div>';
                 return;
             }
-
             grid.innerHTML = '';
-
             videos.forEach(video => {
                 const thumbnailUrl = `https://img.youtube.com/vi/${video.youtube_id}/hqdefault.jpg`;
-
                 const card = document.createElement('div');
-                card.className = 'video-card';
-                card.onclick = () => abrirModal(video);
-
+                card.className = 'card';
+                card.onclick = () => abrirModalVideo(video);
                 card.innerHTML = `
                     <div class="thumbnail-container">
                         <img src="${thumbnailUrl}" alt="${escapeHtml(video.titulo)}">
@@ -430,47 +505,104 @@
                         <p>📅 ${escapeHtml(video.data_ministrada || '')}</p>
                     </div>
                 `;
-
-                    grid.appendChild(card);
+                grid.appendChild(card);
             });
         }
 
-        function filtrarVideos() {
-            const termo = document.getElementById('searchInput').value.toLowerCase().trim();
-            
-            const filtrados = todosVideos.filter(video => {
-                const titulo = (video.titulo || '').toLowerCase();
-                const ministrante = (video.ministrante || '').toLowerCase();
-                const descricao = (video.descricao || '').toLowerCase();
-                return titulo.includes(termo) || ministrante.includes(termo) || descricao.includes(termo);
-            });
-
-            renderizarVideos(filtrados);
+        // Carregar Documentos (Supondo tabela 'documentos' com colunas: id, titulo, categoria, url_pdf, descricao, data_cadastro)
+        async function carregarDocumentos() {
+            const grid = document.getElementById('docGrid');
+            try {
+                const { data: docs, error } = await supabaseClient.from('documentos').select('*').order('id', { ascending: true });
+                if (error) {
+                    // Se a tabela ainda não existir no Supabase, exibe aviso amigável
+                    grid.innerHTML = '<div class="loading">Crie a tabela \'documentos\' no Supabase para listar os manuais.</div>';
+                    return;
+                }
+                todosDocumentos = docs || [];
+                renderizarDocumentos(todosDocumentos);
+            } catch (err) {
+                grid.innerHTML = '<div class="loading">Nenhum documento cadastrado.</div>';
+            }
         }
 
-        function abrirModal(video) {
-            const modal = document.getElementById('videoModal');
+        function renderizarDocumentos(docs) {
+            const grid = document.getElementById('docGrid');
+            if (docs.length === 0) {
+                grid.innerHTML = '<div class="loading">Nenhum documento encontrado.</div>';
+                return;
+            }
+            grid.innerHTML = '';
+            docs.forEach(doc => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => abrirModalDoc(doc);
+                card.innerHTML = `
+                    <div class="thumbnail-container">
+                        <div class="doc-thumbnail-placeholder">
+                            <span>📄</span>
+                            <small>Leitura Segura</small>
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <h3>${escapeHtml(doc.titulo)}</h3>
+                        <p>📂 ${escapeHtml(doc.categoria || 'Geral')}</p>
+                        <p>📅 ${escapeHtml(doc.data_cadastro || '')}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Abrir Vídeo no Modal (Com parâmetros estritos do YouTube para bloquear compartilhamento e logos indesejadas)
+        function abrirModalVideo(video) {
+            const modal = document.getElementById('mediaModal');
             const iframe = document.getElementById('modalIframe');
-            const titulo = document.getElementById('modalTitulo');
-            const ministrante = document.getElementById('modalMinistrante');
-            const data = document.getElementById('modalData');
-            const desc = document.getElementById('modalDesc');
+            
+            // Parâmetros do YouTube: autoplay=1, rel=0 (não mostra vídeos recomendados de terceiros), modestbranding=1 (minimiza logo do YouTube), controls=1
+            iframe.src = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1&rel=0&modestbranding=1&controls=1`;
+            
+            document.getElementById('modalTitulo').textContent = video.titulo;
+            document.getElementById('modalMeta1').textContent = `👤 Ministrante: ${video.ministrante || 'Não informado'}`;
+            document.getElementById('modalMeta2').textContent = `📅 Data: ${video.data_ministrada || 'Não informada'}`;
+            document.getElementById('modalDesc').textContent = video.descricao || 'Nenhuma descrição informada.';
 
-            iframe.src = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1`;
-            titulo.textContent = video.titulo;
-            ministrante.textContent = `👤 Ministrante: ${video.ministrante || 'Não informado'}`;
-            data.textContent = `📅 Data: ${video.data_ministrada || 'Não informada'}`;
-            desc.textContent = video.descricao || 'Nenhuma descrição detalhada informada.';
+            modal.style.display = 'flex';
+        }
+
+        // Abrir Documento/PDF no Modal Integrado (Bloqueia download direto forçando visualizador web)
+        function abrirModalDoc(doc) {
+            const modal = document.getElementById('mediaModal');
+            const iframe = document.getElementById('modalIframe');
+            
+            // Adiciona #toolbar=0 para desativar a barra de ferramentas nativa de download do visualizador do navegador se suportado
+            iframe.src = `${doc.url_pdf}#toolbar=0&navpanes=0`;
+
+            document.getElementById('modalTitulo').textContent = doc.titulo;
+            document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
+            document.getElementById('modalMeta2').textContent = `📅 Cadastro: ${doc.data_cadastro || '-'}`;
+            document.getElementById('modalDesc').textContent = doc.descricao || 'Material de leitura corporativa restrita.';
 
             modal.style.display = 'flex';
         }
 
         function fecharModal() {
-            const modal = document.getElementById('videoModal');
+            const modal = document.getElementById('mediaModal');
             const iframe = document.getElementById('modalIframe');
-            
             iframe.src = ''; 
             modal.style.display = 'none';
+        }
+
+        function filtrarVideos() {
+            const termo = document.getElementById('searchVideoInput').value.toLowerCase().trim();
+            const filtrados = todosVideos.filter(v => (v.titulo || '').toLowerCase().includes(termo) || (v.ministrante || '').toLowerCase().includes(termo));
+            renderizarVideos(filtrados);
+        }
+
+        function filtrarDocumentos() {
+            const termo = document.getElementById('searchDocInput').value.toLowerCase().trim();
+            const filtrados = todosDocumentos.filter(d => (d.titulo || '').toLowerCase().includes(termo) || (d.categoria || '').toLowerCase().includes(termo));
+            renderizarDocumentos(filtrados);
         }
 
         function sair() {
@@ -478,24 +610,15 @@
         }
 
         window.onclick = function(event) {
-            const modal = document.getElementById('videoModal');
-            if (event.target == modal) {
-                fecharModal();
-            }
+            const modal = document.getElementById('mediaModal');
+            if (event.target == modal) fecharModal();
         }
 
         function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return (text || '').replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
-        // Executa a inicialização ao carregar a página
         inicializarPortal();
     </script>
 </body>
