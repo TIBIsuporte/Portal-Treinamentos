@@ -545,26 +545,7 @@
         }
         
         // Abrir Vídeo no Modal
-        function abrirModalVideo(video) {
-            const modal = document.getElementById('mediaModal');
-            const container = document.querySelector('.modal-media-container');
-            
-            const youtubeUrl = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`;
-
-            container.innerHTML = `
-                <iframe src="${youtubeUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none;"></iframe>
-            `;
-            
-            document.getElementById('modalTitulo').textContent = video.titulo;
-            document.getElementById('modalMeta1').textContent = `👤 Ministrante: ${video.ministrante || 'Não informado'}`;
-            document.getElementById('modalMeta2').textContent = `📅 Data: ${video.data_ministrada || 'Não informada'}`;
-            document.getElementById('modalDesc').textContent = video.descricao || 'Nenhuma descrição informada.';
-
-            modal.style.display = 'flex';
-        }
-        
-        // Abrir Documento/PDF no Modal
-        function abrirModalDoc(doc) {
+function abrirModalDoc(doc) {
             const modal = document.getElementById('mediaModal');
             const container = document.querySelector('.modal-media-container');
             
@@ -573,8 +554,9 @@
                 pdfUrl = '/' + pdfUrl;
             }
 
+            // Adicionamos #toolbar=0&navpanes=0 para ocultar a barra de ferramentas padrão
             container.innerHTML = `
-                <iframe src="${pdfUrl}" frameborder="0" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none; background: #fff;"></iframe>
+                <iframe src="${pdfUrl}#toolbar=0&navpanes=0" frameborder="0" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none; background: #fff;"></iframe>
             `;
 
             document.getElementById('modalTitulo').textContent = doc.titulo;
