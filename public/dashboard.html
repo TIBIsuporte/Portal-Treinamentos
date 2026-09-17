@@ -296,15 +296,6 @@
             background: #2d3748;
         }
 
-        .modal-media-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
         .modal-details {
             padding: 20px;
             display: flex;
@@ -411,7 +402,7 @@
         <div class="modal-content">
             <button class="close-modal" onclick="fecharModal()">&times;</button>
             <div class="modal-media-container">
-                <iframe id="modalIframe" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <!-- O conteúdo (vídeo ou pdf) será injetado dinamicamente de forma segura aqui -->
             </div>
             <div class="modal-details">
                 <h2 id="modalTitulo">Título</h2>
@@ -509,13 +500,12 @@
             });
         }
 
-        // Carregar Documentos (Supondo tabela 'documentos' com colunas: id, titulo, categoria, url_pdf, descricao, data_cadastro)
+        // Carregar Documentos
         async function carregarDocumentos() {
             const grid = document.getElementById('docGrid');
             try {
                 const { data: docs, error } = await supabaseClient.from('documentos').select('*').order('id', { ascending: true });
                 if (error) {
-                    // Se a tabela ainda não existir no Supabase, exibe aviso amigável
                     grid.innerHTML = '<div class="loading">Crie a tabela \'documentos\' no Supabase para listar os manuais.</div>';
                     return;
                 }
@@ -554,13 +544,16 @@
             });
         }
         
-        // Abrir Vídeo no Modal (Com parâmetros estritos do YouTube para bloquear compartilhamento e logos indesejadas)
+        // Abrir Vídeo no Modal
         function abrirModalVideo(video) {
             const modal = document.getElementById('mediaModal');
-            const iframe = document.getElementById('modalIframe');
+            const container = document.querySelector('.modal-media-container');
             
-            // Força parâmetros restritivos máximos da API do YouTube
-            iframe.src = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`;
+            const youtubeUrl = `https://www.youtube.com/embed/${video.youtube_id}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`;
+
+            container.innerHTML = `
+                <iframe src="${youtubeUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none;"></iframe>
+            `;
             
             document.getElementById('modalTitulo').textContent = video.titulo;
             document.getElementById('modalMeta1').textContent = `👤 Ministrante: ${video.ministrante || 'Não informado'}`;
@@ -570,33 +563,34 @@
             modal.style.display = 'flex';
         }
         
-        // Abrir Documento/PDF no Modal Integrado (Tratamento para URLs do Google Drive e links diretos)
-function abrirModalDoc(doc) {
-    const modal = document.getElementById('mediaModal');
-    const container = document.getElementById('modalMediaContainer');
-    
-    // Caminho direto para o PDF na pasta public/docs/
-    let pdfUrl = doc.url_pdf || '/docs/APOSTILA ZEISS.pdf';
-    if (!pdfUrl.startsWith('/') && !pdfUrl.startsWith('http')) {
-        pdfUrl = '/' + pdfUrl;
-    }
+        // Abrir Documento/PDF no Modal
+        function abrirModalDoc(doc) {
+            const modal = document.getElementById('mediaModal');
+            const container = document.querySelector('.modal-media-container');
+            
+            let pdfUrl = doc.url_pdf || '/docs/APOSTILA ZEISS.pdf';
+            if (!pdfUrl.startsWith('/') && !pdfUrl.startsWith('http')) {
+                pdfUrl = '/' + pdfUrl;
+            }
 
-    // Forma mais básica, limpa e direta com iframe
-    container.innerHTML = `
-        <iframe src="${pdfUrl}" style="width: 100%; height: 100%; border: none; background: #fff;"></iframe>
-    `;
+            container.innerHTML = `
+                <iframe src="${pdfUrl}" frameborder="0" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none; background: #fff;"></iframe>
+            `;
 
-    document.getElementById('modalTitulo').textContent = doc.titulo;
-    document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
-    document.getElementById('modalMeta2').textContent = `📅 Disponível`;
-    document.getElementById('modalDesc').textContent = doc.descricao || '';
+            document.getElementById('modalTitulo').textContent = doc.titulo;
+            document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
+            document.getElementById('modalMeta2').textContent = `📅 Disponível`;
+            document.getElementById('modalDesc').textContent = doc.descricao || '';
 
-    modal.style.display = 'flex';
-}        
+            modal.style.display = 'flex';
+        }        
+        
+        // Fechar Modal (limpa o iframe e interrompe áudio/vídeo/PDF em segundo plano)
         function fecharModal() {
             const modal = document.getElementById('mediaModal');
-            const iframe = document.getElementById('modalIframe');
-            iframe.src = ''; 
+            const container = document.querySelector('.modal-media-container');
+            
+            container.innerHTML = ''; 
             modal.style.display = 'none';
         }
 
@@ -623,7 +617,8 @@ function abrirModalDoc(doc) {
 
         function escapeHtml(text) {
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return (text || '').replace(/[&<>"']/g, function(m) { return map[m]; });
+            const str = text !== null && text !== undefined ? String(text) : '';
+            return str.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
         inicializarPortal();
