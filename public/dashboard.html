@@ -571,35 +571,40 @@
         }
         
         // Abrir Documento/PDF no Modal Integrado (Tratamento para URLs do Google Drive e links diretos)
-        function abrirModalDoc(doc) {
-            const modal = document.getElementById('mediaModal');
-            const iframe = document.getElementById('modalIframe');
-            
-            let urlFinal = doc.url_pdf || '';
+function abrirModalDoc(doc) {
+    const modal = document.getElementById('mediaModal');
+    const bodyModal = document.getElementById('modalBodyConteudo'); // O container onde fica o iframe
+    
+    // Detecta se é celular/tablet
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-            // Se for um link do Google Drive no formato de compartilhamento/visualização, converte para o formato de embed/preview seguro
-            if (urlFinal.includes('drive.google.com')) {
-                urlFinal = urlFinal.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
-                if (!urlFinal.includes('/preview')) {
-                    urlFinal += (urlFinal.includes('?') ? '&' : '?') + 'usp=sharing';
-                }
-            } else {
-                // Adiciona #toolbar=0 para desativar a barra de ferramentas nativa de download do visualizador do navegador se suportado
-                if (!urlFinal.includes('#')) {
-                    urlFinal += '#toolbar=0&navpanes=0';
-                }
-            }
+    if (isMobile) {
+        // No celular, usamos a tag <object> com tipo application/pdf que força o leitor interno do Chrome mobile
+        bodyModal.innerHTML = `
+            <object data="${doc.url_pdf}#toolbar=0&view=FitH" type="application/pdf" width="100%" height="100%">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: height: 100%; padding: 40px; text-align: center;">
+                    <p style="margin-bottom: 15px; color: #333; font-weight: bold;">Visualizador de PDF nativo indisponível neste aparelho.</p>
+                    <a href="${doc.url_pdf}" target="_blank" style="background: #0066cc; color: #white; padding: 10px 20px; border-radius: 6px; text-decoration: none; color: #fff;">Toque aqui para ler o documento</a>
+                </div>
+            </object>
+        `;
+    } else {
+        // No computador, usa o iframe limpo
+        bodyModal.innerHTML = `
+            <iframe src="${doc.url_pdf}#toolbar=0&navpanes=0&scrollbar=0" 
+                    style="width:100%; height:100%; border:none;">
+            </iframe>
+        `;
+    }
 
-            iframe.src = urlFinal;
+    // Preenche os dados do documento
+    document.getElementById('modalTitulo').textContent = doc.titulo;
+    document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
+    document.getElementById('modalMeta2').textContent = `📅 Cadastro: ${doc.data_cadastro || '-'}`;
+    document.getElementById('modalDesc').textContent = doc.descricao || '';
 
-            document.getElementById('modalTitulo').textContent = doc.titulo;
-            document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
-            document.getElementById('modalMeta2').textContent = `📅 Cadastro: ${doc.data_cadastro || '-'}`;
-            document.getElementById('modalDesc').textContent = doc.descricao || 'Material de leitura corporativa restrita.';
-
-            modal.style.display = 'flex';
-        }
-
+    modal.style.display = 'flex';
+}
         function fecharModal() {
             const modal = document.getElementById('mediaModal');
             const iframe = document.getElementById('modalIframe');
