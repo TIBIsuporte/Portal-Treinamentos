@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Treinamentos Corporativos</title>
+    <title>Portal de Treinamento</title>
     <!-- Importa o cliente do Supabase para o front-end -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -31,12 +31,24 @@
 
         header h1 {
             font-size: 1.5rem;
+            white-space: nowrap;
+        }
+
+        /* Estilo para a frase centralizada no cabeçario */
+        .header-quote {
+            font-size: 0.95rem;
+            color: #cbd5e0;
+            font-style: italic;
+            font-weight: bold;
+            text-align: center;
+            margin: 0 20px;
         }
 
         .user-info {
             display: flex;
             align-items: center;
             gap: 15px;
+            white-space: nowrap;
         }
 
         .user-name {
@@ -292,7 +304,7 @@
         .modal-media-container {
             position: relative;
             width: 100%;
-            height: 70vh; /* Altura generosa para leitura de PDF */
+            height: 70vh;
             background: #2d3748;
         }
 
@@ -337,11 +349,22 @@
             grid-column: 1 / -1;
         }
 
-        @media (max-width: 768px) {
-            header, .nav-tabs {
+        @media (max-width: 950px) {
+            header {
                 flex-direction: column;
                 gap: 15px;
                 padding: 15px;
+                text-align: center;
+            }
+            .header-quote {
+                margin: 5px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+                padding: 10px;
                 text-align: center;
             }
             .section-header {
@@ -358,7 +381,10 @@
 <body>
 
     <header>
-        <h1>Portal de Treinamentos Corporativos</h1>
+        <h1>Portal de Treinamento</h1>
+        <div class="header-quote">
+            <em>“O aprendizado não tem fim; cada descoberta abre portas para novas jornadas.”</em>
+        </div>
         <div class="user-info">
             <span id="userName" class="user-name">Carregando...</span>
             <button class="btn-sair" onclick="sair()">Sair</button>
@@ -402,7 +428,7 @@
         <div class="modal-content">
             <button class="close-modal" onclick="fecharModal()">&times;</button>
             <div class="modal-media-container">
-                <!-- O conteúdo (vídeo ou pdf) será injetado dinamicamente de forma segura aqui -->
+                <!-- O conteúdo (vídeo ou pdf) será injetado dinamicamente aqui -->
             </div>
             <div class="modal-details">
                 <h2 id="modalTitulo">Título</h2>
@@ -544,8 +570,8 @@
             });
         }
         
-        // Abrir Vídeo no Modal
-function abrirModalDoc(doc) {
+        // Abrir Documento no Modal
+        function abrirModalDoc(doc) {
             const modal = document.getElementById('mediaModal');
             const container = document.querySelector('.modal-media-container');
             
@@ -554,7 +580,6 @@ function abrirModalDoc(doc) {
                 pdfUrl = '/' + pdfUrl;
             }
 
-            // Adicionamos #toolbar=0&navpanes=0 para ocultar a barra de ferramentas padrão
             container.innerHTML = `
                 <iframe src="${pdfUrl}#toolbar=0&navpanes=0" frameborder="0" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none; background: #fff;"></iframe>
             `;
@@ -565,9 +590,26 @@ function abrirModalDoc(doc) {
             document.getElementById('modalDesc').textContent = doc.descricao || '';
 
             modal.style.display = 'flex';
-        }        
+        }
+
+        // Abrir Vídeo no Modal
+        function abrirModalVideo(video) {
+            const modal = document.getElementById('mediaModal');
+            const container = document.querySelector('.modal-media-container');
+
+            container.innerHTML = `
+                <iframe src="https://www.youtube.com/embed/${video.youtube_id}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none;"></iframe>
+            `;
+
+            document.getElementById('modalTitulo').textContent = video.titulo;
+            document.getElementById('modalMeta1').textContent = `👤 ${video.ministrante || 'Equipe'}`;
+            document.getElementById('modalMeta2').textContent = `📅 ${video.data_ministrada || ''}`;
+            document.getElementById('modalDesc').textContent = video.descricao || '';
+
+            modal.style.display = 'flex';
+        }
         
-        // Fechar Modal (limpa o iframe e interrompe áudio/vídeo/PDF em segundo plano)
+        // Fechar Modal
         function fecharModal() {
             const modal = document.getElementById('mediaModal');
             const container = document.querySelector('.modal-media-container');
