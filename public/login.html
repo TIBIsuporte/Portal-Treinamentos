@@ -24,23 +24,24 @@
             position: relative;
         }
 
-        /* Frase no Topo com Linha Divisória */
+        /* Topo com faixa elegante e linha em gradiente */
         .top-banner {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             text-align: center;
-            color: #e2e8f0;
+            color: #f1f5f9;
             font-size: 1rem;
             font-weight: bold;
             font-style: italic;
-            padding: 15px 20px;
-            border-bottom: 1px solid #1e293b;
-            background: rgba(15, 23, 42, 0.8);
+            padding: 16px 20px;
+            background: linear-gradient(180deg, #1e293b 0%, rgba(30, 41, 59, 0.4) 100%);
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(to right, transparent, #38bdf8, transparent) 1;
         }
 
-        /* Rodapé / Assinatura com Linha Divisória */
+        /* Rodapé com faixa elegante e linha em gradiente */
         .footer-signature {
             position: absolute;
             bottom: 0;
@@ -48,10 +49,11 @@
             width: 100%;
             text-align: right;
             padding: 12px 30px;
-            border-top: 1px solid #1e293b;
-            background: rgba(15, 23, 42, 0.8);
-            color: #64748b;
-            font-size: 0.85rem;
+            background: linear-gradient(0deg, #1e293b 0%, rgba(30, 41, 59, 0.4) 100%);
+            border-top: 2px solid transparent;
+            border-image: linear-gradient(to right, transparent, #38bdf8, transparent) 1;
+            color: #94a3b8;
+            font-size: 0.9rem;
             font-style: italic;
         }
 
@@ -201,7 +203,7 @@
 </head>
 <body>
 
-    <!-- Frase no Topo com Linha -->
+    <!-- Frase no Topo com Linha em Gradiente -->
     <div class="top-banner">
         <em>“Aqui começa sua jornada: aprender hoje é construir o amanhã.”</em>
     </div>
@@ -237,7 +239,7 @@
         </form>
     </div>
 
-    <!-- Rodapé com Linha e Assinatura -->
+    <!-- Rodapé com Linha em Gradiente e Assinatura -->
     <div class="footer-signature">
         By AGA
     </div>
