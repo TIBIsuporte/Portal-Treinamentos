@@ -573,31 +573,26 @@
         // Abrir Documento/PDF no Modal Integrado (Tratamento para URLs do Google Drive e links diretos)
 function abrirModalDoc(doc) {
     const modal = document.getElementById('mediaModal');
-    const bodyModal = document.getElementById('modalBodyConteudo'); // O container onde fica o iframe
+    const container = document.getElementById('modalMediaContainer');
     
-    // Detecta se é celular/tablet
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    if (isMobile) {
-        // No celular, usamos a tag <object> com tipo application/pdf que força o leitor interno do Chrome mobile
-        bodyModal.innerHTML = `
-            <object data="${doc.url_pdf}#toolbar=0&view=FitH" type="application/pdf" width="100%" height="100%">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: height: 100%; padding: 40px; text-align: center;">
-                    <p style="margin-bottom: 15px; color: #333; font-weight: bold;">Visualizador de PDF nativo indisponível neste aparelho.</p>
-                    <a href="${doc.url_pdf}" target="_blank" style="background: #0066cc; color: #white; padding: 10px 20px; border-radius: 6px; text-decoration: none; color: #fff;">Toque aqui para ler o documento</a>
-                </div>
-            </object>
-        `;
-    } else {
-        // No computador, usa o iframe limpo
-        bodyModal.innerHTML = `
-            <iframe src="${doc.url_pdf}#toolbar=0&navpanes=0&scrollbar=0" 
-                    style="width:100%; height:100%; border:none;">
-            </iframe>
-        `;
+    // Garante que se o caminho vier sem a barra inicial, ela seja adicionada corretamente
+    let pdfUrl = doc.url_pdf;
+    if (pdfUrl && !pdfUrl.startsWith('http') && !pdfUrl.startsWith('/')) {
+        pdfUrl = '/' + pdfUrl;
     }
 
-    // Preenche os dados do documento
+    container.innerHTML = `
+        <object data="${pdfUrl}#toolbar=0&view=FitH" type="application/pdf" width="100%" height="100%">
+            <iframe src="${pdfUrl}" style="width:100%; height:100%; border:none;">
+                <p>Seu navegador não suporta visualização direta. <a href="${pdfUrl}" target="_blank">Clique aqui para baixar o PDF.</a></p>
+            </iframe>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px; text-align: center; background: #fff;">
+                <p style="margin-bottom: 15px; color: #333; font-weight: bold;">Não foi possível carregar o PDF diretamente no painel.</p>
+                <a href="${pdfUrl}" target="_blank" style="background: #3182ce; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">Abrir PDF em nova aba</a>
+            </div>
+        </object>
+    `;
+
     document.getElementById('modalTitulo').textContent = doc.titulo;
     document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
     document.getElementById('modalMeta2').textContent = `📅 Cadastro: ${doc.data_cadastro || '-'}`;
@@ -605,6 +600,7 @@ function abrirModalDoc(doc) {
 
     modal.style.display = 'flex';
 }
+        
         function fecharModal() {
             const modal = document.getElementById('mediaModal');
             const iframe = document.getElementById('modalIframe');
