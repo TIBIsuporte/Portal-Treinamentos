@@ -21,6 +21,31 @@
             color: #fff;
             gap: 50px;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Frase no Topo */
+        .top-banner {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            padding: 0 20px;
+        }
+
+        /* Rodapé / Assinatura */
+        .footer-signature {
+            position: absolute;
+            bottom: 15px;
+            right: 25px;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-style: italic;
         }
 
         /* Container das Logos à Esquerda */
@@ -53,6 +78,11 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+        }
+
+        /* Ajuste específico para aumentar a logo da Lens */
+        .logo-lens img {
+            transform: scale(1.6);
         }
 
         /* Card de Login */
@@ -125,9 +155,24 @@
                 flex-direction: column;
                 height: auto;
                 justify-content: center;
-                gap: 30px;
+                gap: 25px;
                 overflow-y: auto;
-                padding: 40px 20px;
+                padding: 60px 20px 40px 20px;
+            }
+
+            .top-banner {
+                position: relative;
+                top: 0;
+                margin-bottom: 10px;
+                font-size: 0.9rem;
+            }
+
+            .footer-signature {
+                position: relative;
+                bottom: 0;
+                right: 0;
+                text-align: center;
+                margin-top: 15px;
             }
 
             .logos-container {
@@ -148,9 +193,14 @@
 </head>
 <body>
 
+    <!-- Frase no Topo -->
+    <div class="top-banner">
+        “Aqui começa sua jornada: aprender hoje é construir o amanhã.”
+    </div>
+
     <!-- Lado Esquerdo: 4 Cards com as Logos -->
     <div class="logos-container">
-        <div class="logo-card">
+        <div class="logo-card logo-lens">
             <img src="/images/logo_lens.png" alt="Ótica Lens">
         </div>
         <div class="logo-card">
@@ -177,6 +227,11 @@
             
             <button type="submit">Entrar</button>
         </form>
+    </div>
+
+    <!-- Rodapé: Assinatura -->
+    <div class="footer-signature">
+        By AGA
     </div>
 
     <script>
