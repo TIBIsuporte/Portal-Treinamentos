@@ -553,6 +553,7 @@
                 grid.appendChild(card);
             });
         }
+        
         // Abrir Vídeo no Modal (Com parâmetros estritos do YouTube para bloquear compartilhamento e logos indesejadas)
         function abrirModalVideo(video) {
             const modal = document.getElementById('mediaModal');
@@ -569,13 +570,27 @@
             modal.style.display = 'flex';
         }
         
-        // Abrir Documento/PDF no Modal Integrado (Bloqueia download direto forçando visualizador web)
+        // Abrir Documento/PDF no Modal Integrado (Tratamento para URLs do Google Drive e links diretos)
         function abrirModalDoc(doc) {
             const modal = document.getElementById('mediaModal');
             const iframe = document.getElementById('modalIframe');
             
-            // Adiciona #toolbar=0 para desativar a barra de ferramentas nativa de download do visualizador do navegador se suportado
-            iframe.src = `${doc.url_pdf}#toolbar=0&navpanes=0`;
+            let urlFinal = doc.url_pdf || '';
+
+            // Se for um link do Google Drive no formato de compartilhamento/visualização, converte para o formato de embed/preview seguro
+            if (urlFinal.includes('drive.google.com')) {
+                urlFinal = urlFinal.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+                if (!urlFinal.includes('/preview')) {
+                    urlFinal += (urlFinal.includes('?') ? '&' : '?') + 'usp=sharing';
+                }
+            } else {
+                // Adiciona #toolbar=0 para desativar a barra de ferramentas nativa de download do visualizador do navegador se suportado
+                if (!urlFinal.includes('#')) {
+                    urlFinal += '#toolbar=0&navpanes=0';
+                }
+            }
+
+            iframe.src = urlFinal;
 
             document.getElementById('modalTitulo').textContent = doc.titulo;
             document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
