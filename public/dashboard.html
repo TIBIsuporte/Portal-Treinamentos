@@ -575,32 +575,24 @@ function abrirModalDoc(doc) {
     const modal = document.getElementById('mediaModal');
     const container = document.getElementById('modalMediaContainer');
     
-    // Garante que se o caminho vier sem a barra inicial, ela seja adicionada corretamente
-    let pdfUrl = doc.url_pdf;
-    if (pdfUrl && !pdfUrl.startsWith('http') && !pdfUrl.startsWith('/')) {
+    // Caminho direto para o PDF na pasta public/docs/
+    let pdfUrl = doc.url_pdf || '/docs/APOSTILA ZEISS.pdf';
+    if (!pdfUrl.startsWith('/') && !pdfUrl.startsWith('http')) {
         pdfUrl = '/' + pdfUrl;
     }
 
+    // Forma mais básica, limpa e direta com iframe
     container.innerHTML = `
-        <object data="${pdfUrl}#toolbar=0&view=FitH" type="application/pdf" width="100%" height="100%">
-            <iframe src="${pdfUrl}" style="width:100%; height:100%; border:none;">
-                <p>Seu navegador não suporta visualização direta. <a href="${pdfUrl}" target="_blank">Clique aqui para baixar o PDF.</a></p>
-            </iframe>
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px; text-align: center; background: #fff;">
-                <p style="margin-bottom: 15px; color: #333; font-weight: bold;">Não foi possível carregar o PDF diretamente no painel.</p>
-                <a href="${pdfUrl}" target="_blank" style="background: #3182ce; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">Abrir PDF em nova aba</a>
-            </div>
-        </object>
+        <iframe src="${pdfUrl}" style="width: 100%; height: 100%; border: none; background: #fff;"></iframe>
     `;
 
     document.getElementById('modalTitulo').textContent = doc.titulo;
     document.getElementById('modalMeta1').textContent = `📂 Categoria: ${doc.categoria || 'Geral'}`;
-    document.getElementById('modalMeta2').textContent = `📅 Cadastro: ${doc.data_cadastro || '-'}`;
+    document.getElementById('modalMeta2').textContent = `📅 Disponível`;
     document.getElementById('modalDesc').textContent = doc.descricao || '';
 
     modal.style.display = 'flex';
-}
-        
+}        
         function fecharModal() {
             const modal = document.getElementById('mediaModal');
             const iframe = document.getElementById('modalIframe');
