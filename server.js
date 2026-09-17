@@ -29,7 +29,7 @@ function isAuthenticated(req, res, next) {
     res.redirect('/login.html');
 }
 
-// Arquivos estáticos públicos (Login, CSS, etc)
+// Arquivos estáticos públicos (Login, Dashboard, CSS, Imagens, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rota para fornecer o usuário logado atual ao front-end de forma segura
@@ -83,9 +83,9 @@ app.get('/dashboard.html', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// Redireciona a raiz para a tela de login
+// Redireciona a raiz para a tela de login (que agora está dentro de public)
 app.get('/', (req, res) => {
-    res.redirect('/login.html');
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 app.listen(port, () => {
