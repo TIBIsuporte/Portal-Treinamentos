@@ -206,26 +206,6 @@
             font-size: 2.5rem;
         }
 
-        .quiz-thumbnail-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            gap: 8px;
-        }
-
-        .quiz-thumbnail-placeholder span {
-            font-size: 2.5rem;
-        }
-
         .play-icon {
             position: absolute;
             top: 50%;
@@ -370,13 +350,6 @@
             background: #f7fafc;
         }
 
-        .option-item.selected {
-            border-color: #3182ce;
-            background: #ebf8ff;
-            color: #2b6cb0;
-            font-weight: 600;
-        }
-
         .option-item.correct {
             border-color: #38a169;
             background: #f0fff4;
@@ -405,7 +378,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             max-width: 700px;
             margin: 0 auto;
-            text-align: center;
             display: none;
         }
 
@@ -419,7 +391,36 @@
         .result-message {
             font-size: 1.1rem;
             color: #4a5568;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+
+        .revisoes-container {
+            max-height: 350px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+            padding-right: 5px;
+        }
+
+        .revisao-item {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #f7fafc;
+            font-size: 0.9rem;
+        }
+
+        .revisao-item.acertou {
+            border-color: #c6f6d5;
+            background: #f0fff4;
+        }
+
+        .revisao-item.errou {
+            border-color: #fed7d7;
+            background: #fff5f5;
         }
 
         /* Modals */
@@ -609,9 +610,9 @@
                     <label for="quizCategoria">Categoria / Tema:</label>
                     <select id="quizCategoria" class="filter-select">
                         <option value="todos">🌐 Todas as Categorias (Geral)</option>
-                        <option value="Otica Básica">👓 Ótica Básica</option>
+                        <option value="Otica Basica">👓 Ótica Básica</option>
                         <option value="Anatomia Ocular">👁️ Anatomia Ocular</option>
-                        <option value="Técnicas de Vendas">🤝 Técnicas de Vendas</option>
+                        <option value="Tecnicas de Vendas">🤝 Técnicas de Vendas</option>
                     </select>
                 </div>
 
@@ -619,18 +620,9 @@
                     <label for="quizDificuldade">Nível de Dificuldade:</label>
                     <select id="quizDificuldade" class="filter-select">
                         <option value="todos">⭐ Todos os Níveis</option>
-                        <option value="Facil">Fácil</option>
-                        <option value="Medio">Médio</option>
-                        <option value="Dificil">Difícil</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="quizQtd">Quantidade de Questões:</label>
-                    <select id="quizQtd" class="filter-select">
-                        <option value="5">5 Questões (Rápido)</option>
-                        <option value="10" selected>10 Questões (Padrão)</option>
-                        <option value="15">15 Questões (Avançado)</option>
+                        <option value="facil">Fácil</option>
+                        <option value="medio">Médio</option>
+                        <option value="dificil">Difícil</option>
                     </select>
                 </div>
 
@@ -654,11 +646,17 @@
                 </div>
             </div>
 
-            <!-- 3. Tela de Resultados -->
+            <!-- 3. Tela de Resultados e Revisão -->
             <div id="quizResultView" class="quiz-result-container">
-                <h2 style="font-size: 1.8rem; color: #1a202c;">Avaliação Concluída!</h2>
-                <div id="resultScoreBadge" class="result-score-badge">0 / 0</div>
+                <h2 style="font-size: 1.8rem; color: #1a202c; margin-bottom: 5px;">Avaliação Concluída!</h2>
+                <div id="resultScoreBadge" class="result-score-badge">0 / 10 (0%)</div>
                 <p id="resultMessageText" class="result-message">Você concluiu o teste com sucesso.</p>
+                
+                <h3 style="font-size: 1.1rem; color: #2d3748; margin-bottom: 10px; text-align: left;">Revisão Detalhada das Respostas:</h3>
+                <div id="revisoesContainer" class="revisoes-container">
+                    <!-- Detalhamento de acertos e erros entra aqui -->
+                </div>
+
                 <button class="btn-primary" onclick="voltarConfigQuiz()">Fazer Novo Teste</button>
             </div>
         </div>
@@ -693,6 +691,12 @@
         let indiceQuestaoAtual = 0;
         let acertosQuiz = 0;
         let respostaSelecionadaUsuario = null;
+        let historicoRespostasUsuario = [];
+
+        // Normalizador auxiliar para tratar acentuação e maiúsculas/minúsculas nos filtros
+        function normalizarTexto(str) {
+            return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : "";
+        }
 
         // Inicialização Segura
         async function inicializarPortal() {
@@ -887,39 +891,38 @@
 
         function obterQuestoesDemonstracao() {
             return [
-                { id: 1, categoria: "Otica Básica", dificuldade: "Facil", pergunta: "O que é miopia?", opcao_a: "Não enxergar de perto", opcao_b: "Não enxergar de longe", opcao_c: "Vista cansada", opcao_d: "Falta de dormir", resposta_correta: "b" },
-                { id: 2, categoria: "Otica Básica", dificuldade: "Facil", pergunta: "O que caracteriza a presbiopia?", opcao_b: "Dificuldade para enxergar de perto após os 40 anos", opcao_a: "Inchaço na córnea", opcao_c: "Perda total da visão noturna", opcao_d: "Excesso de lágrimas", resposta_correta: "b" },
-                { id: 3, categoria: "Anatomia Ocular", dificuldade: "Medio", pergunta: "Qual parte do olho atua como uma lente natural que foca a luz na retina?", opcao_a: "Córnea", opcao_b: "Cristalino", opcao_c: "Íris", opcao_d: "Pupila", resposta_correta: "b" },
-                { id: 4, categoria: "Anatomia Ocular", dificuldade: "Medio", pergunta: "O que regula a quantidade de luz que entra nos olhos?", opcao_a: "Retina", opcao_b: "Cristalino", opcao_c: "Íris (Pupila)", opcao_d: "Esclera", resposta_correta: "c" },
-                { id: 5, categoria: "Técnicas de Vendas", dificuldade: "Facil", pergunta: "Qual é o erro mais comum no atendimento de balcão segundo as técnicas de vendas?", opcao_a: "Falar pouco", opcao_b: "Falar demais e ouvir pouco o cliente", opcao_c: "Oferecer brindes", opcao_d: "Sorrir em excesso", resposta_correta: "b" },
-                { id: 6, categoria: "Técnicas de Vendas", dificuldade: "Dificil", pergunta: "O que significa criar 'Rapport' com o cliente?", opcao_a: "Oferecer descontos agressivos", opcao_b: "Criar conexão, empatia e confiança mútua", opcao_c: "Fechar a venda rapidamente", opcao_d: "Vender lentes antirreflexo", resposta_correta: "b" }
+                { id: 1, categoria: "Otica Basica", dificuldade: "facil", pergunta: "O que é miopia?", opcao_a: "Não enxergar de perto", opcao_b: "Não enxergar de longe", opcao_c: "Vista cansada", opcao_d: "Falta de dormir", resposta_correta: "b" },
+                { id: 2, categoria: "Otica Basica", dificuldade: "facil", pergunta: "O que caracteriza a presbiopia?", opcao_a: "Inchaço na córnea", opcao_b: "Dificuldade para enxergar de perto após os 40 anos", opcao_c: "Perda total da visão noturna", opcao_d: "Excesso de lágrimas", resposta_correta: "b" },
+                { id: 3, categoria: "Anatomia Ocular", dificuldade: "medio", pergunta: "Qual parte do olho atua como uma lente natural que foca a luz na retina?", opcao_a: "Córnea", opcao_b: "Cristalino", opcao_c: "Íris", opcao_d: "Pupila", resposta_correta: "b" },
+                { id: 4, categoria: "Anatomia Ocular", dificuldade: "medio", pergunta: "O que regula a quantidade de luz que entra nos olhos?", opcao_a: "Retina", opcao_b: "Cristalino", opcao_c: "Íris (Pupila)", opcao_d: "Esclera", resposta_correta: "c" },
+                { id: 5, categoria: "Tecnicas de Vendas", dificuldade: "facil", pergunta: "Qual é o erro mais comum no atendimento de balcão segundo as técnicas de vendas?", opcao_a: "Falar pouco", opcao_b: "Falar demais e ouvir pouco o cliente", opcao_c: "Oferecer brindes", opcao_d: "Sorrir em excesso", resposta_correta: "b" },
+                { id: 6, categoria: "Tecnicas de Vendas", dificuldade: "dificil", pergunta: "O que significa criar 'Rapport' com o cliente?", opcao_a: "Oferecer descontos agressivos", opcao_b: "Criar conexão, empatia e confiança mútua", opcao_c: "Fechar a venda rapidamente", opcao_d: "Vender lentes antirreflexo", resposta_correta: "b" }
             ];
         }
 
         function iniciarQuiz() {
             const categoriaSel = document.getElementById('quizCategoria').value;
             const dificuldadeSel = document.getElementById('quizDificuldade').value;
-            const qtdDesejada = parseInt(document.getElementById('quizQtd').value);
 
-            // Filtrar questões de acordo com as escolhas do usuário
+            // Filtrar questões aplicando normalização de acentos
             let filtradas = questoesPool.filter(q => {
-                const matchCat = (categoriaSel === 'todos' || q.categoria === categoriaSel);
-                const matchDif = (dificuldadeSel === 'todos' || q.dificuldade === dificuldadeSel);
+                const matchCat = (categoriaSel === 'todos' || normalizarTexto(q.categoria) === normalizarTexto(categoriaSel));
+                const matchDif = (dificuldadeSel === 'todos' || normalizarTexto(q.dificuldade) === normalizarTexto(dificuldadeSel));
                 return matchCat && matchDif;
             });
 
-            if (filtradas.length === 0) {
-                alert("Não há questões suficientes cadastradas para este filtro. Selecione 'Todas as Categorias' ou 'Todos os Níveis'.");
+            if (filtradas.length < 10) {
+                alert(`Não há questões suficientes cadastradas para este filtro (${filtradas.length} encontradas). Selecione 'Todas as Categorias' ou 'Todos os Níveis' ou cadastre mais itens.`);
                 return;
             }
 
-            // Embaralhar pool (Randomização)
+            // Embaralhar pool (Randomização) e fixar exatamente 10 questões
             filtradas.sort(() => Math.random() - 0.5);
-
-            // Selecionar o limite escolhido
-            quizAtual = filtradas.slice(0, qtdDesejada);
+            quizAtual = filtradas.slice(0, 10);
+            
             indiceQuestaoAtual = 0;
             acertosQuiz = 0;
+            historicoRespostasUsuario = [];
 
             // Alternar visualização das telas internas da aba
             document.getElementById('quizConfigView').style.display = 'none';
@@ -931,11 +934,12 @@
 
         function carregarQuestaoAtual() {
             respostaSelecionadaUsuario = null;
-            document.getElementById('btnProximaQuestao').disabled = true;
-            document.getElementById('btnProximaQuestao').style.backgroundColor = '#4a5568';
+            const btnProxima = document.getElementById('btnProximaQuestao');
+            btnProxima.disabled = true;
+            btnProxima.style.backgroundColor = '#4a5568';
 
             const q = quizAtual[indiceQuestaoAtual];
-            document.getElementById('quizProgressInfo').textContent = `Questão ${indiceQuestaoAtual + 1} de ${quizAtual.length}`;
+            document.getElementById('quizProgressInfo').textContent = `Questão ${indiceQuestaoAtual + 1} de 10`;
             document.getElementById('quizQuestionText').textContent = q.pergunta;
 
             const listaOpcoes = document.getElementById('quizOptionsList');
@@ -944,7 +948,7 @@
             const letras = ['a', 'b', 'c', 'd'];
             letras.forEach(letra => {
                 const textoOpcao = q[`opcao_${letra}`];
-                if (!textoOpcao) return; // Se não houver opção d por ex, pula
+                if (!textoOpcao) return;
 
                 const divOpcao = document.createElement('div');
                 divOpcao.className = 'option-item';
@@ -952,15 +956,34 @@
                 divOpcao.onclick = () => selecionarOpcao(letra, divOpcao);
                 listaOpcoes.appendChild(divOpcao);
             });
+
+            // Ajusta o texto do botão na última questão
+            if (indiceQuestaoAtual === 9) {
+                btnProxima.textContent = "Ver Resultado Final";
+            } else {
+                btnProxima.textContent = "Próxima Questão";
+            }
         }
 
         function selecionarOpcao(letraEscolhida, elementoDom) {
-            // Se já respondeu esta questão, impede nova seleção
             if (respostaSelecionadaUsuario !== null) return;
 
             respostaSelecionadaUsuario = letraEscolhida;
             const q = quizAtual[indiceQuestaoAtual];
-            const correta = q.resposta_correta;
+            const correta = (q.resposta_correta || '').toLowerCase().trim();
+            const escolhida = letraEscolhida.toLowerCase().trim();
+            const acertou = (escolhida === correta);
+
+            if (acertou) acertosQuiz++;
+
+            // Salvar no histórico para exibição posterior na tela de resultados
+            historicoRespostasUsuario.push({
+                pergunta: q.pergunta,
+                escolha: escolhida.toUpperCase(),
+                correta: correta.toUpperCase(),
+                acertou: acertou,
+                opcoes: { a: q.opcao_a, b: q.opcao_b, c: q.opcao_c, d: q.opcao_d }
+            });
 
             // Destacar acerto ou erro em tempo real
             const itens = document.querySelectorAll('.option-item');
@@ -968,30 +991,21 @@
                 const letraAtual = ['a', 'b', 'c', 'd'][index];
                 if (letraAtual === correta) {
                     item.classList.add('correct');
-                } else if (letraAtual === letraEscolhida && letraEscolhida !== correta) {
+                } else if (letraAtual === escolhida && !acertou) {
                     item.classList.add('incorrect');
                 }
                 item.style.cursor = 'default';
             });
 
-            if (letraEscolhida === correta) {
-                acertosQuiz++;
-            }
-
             // Habilitar botão de avançar
             const btnProxima = document.getElementById('btnProximaQuestao');
             btnProxima.disabled = false;
             btnProxima.style.backgroundColor = '#3182ce';
-            if (indiceQuestaoAtual === quizAtual.length - 1) {
-                btnProxima.textContent = "Ver Resultado Final";
-            } else {
-                btnProxima.textContent = "Próxima Questão";
-            }
         }
 
         function proximaQuestao() {
             indiceQuestaoAtual++;
-            if (indiceQuestaoAtual < quizAtual.length) {
+            if (indiceQuestaoAtual < 10) {
                 carregarQuestaoAtual();
             } else {
                 finalizarQuiz();
@@ -1002,10 +1016,8 @@
             document.getElementById('quizActiveView').style.display = 'none';
             document.getElementById('quizResultView').style.display = 'block';
 
-            const total = quizAtual.length;
-            const percentual = Math.round((acertosQuiz / total) * 100);
-
-            document.getElementById('resultScoreBadge').textContent = `${acertosQuiz} / ${total} (${percentual}%)`;
+            const percentual = Math.round((acertosQuiz / 10) * 100);
+            document.getElementById('resultScoreBadge').textContent = `${acertosQuiz} / 10 (${percentual}%)`;
 
             let msg = "";
             if (percentual >= 80) {
@@ -1016,6 +1028,32 @@
                 msg = "📚 É recomendável realizar uma nova leitura na aba de Manuais e Documentos e assistir aos vídeos de treinamento.";
             }
             document.getElementById('resultMessageText').textContent = msg;
+
+            // Renderizar listagem detalhada de acertos e erros na tela de resultados
+            const revContainer = document.getElementById('revisoesContainer');
+            revContainer.innerHTML = '';
+
+            historicoRespostasUsuario.forEach((res, index) => {
+                const statusBadge = res.acertou 
+                    ? `<span style="background: #c6f6d5; color: #22543d; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">Correto</span>`
+                    : `<span style="background: #fed7d7; color: #742a2a; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">Incorreto</span>`;
+
+                const textoEscolha = res.opcoes[res.escolha.toLowerCase()] || '';
+                const textoCorreta = res.opcoes[res.correta.toLowerCase()] || '';
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `revisao-item ${res.acertou ? 'acertou' : 'errou'}`;
+                itemDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <strong>Questão ${index + 1}</strong>
+                        ${statusBadge}
+                    </div>
+                    <p style="color: #1a202c; font-weight: 500; margin-bottom: 6px;">${escapeHtml(res.pergunta)}</p>
+                    <p style="font-size: 0.85rem; color: #4a5568;">Sua resposta: <b>${res.escolha}) ${escapeHtml(textoEscolha)}</b></p>
+                    ${!res.acertou ? `<p style="font-size: 0.85rem; color: #22543d; margin-top: 2px;">Resposta correta: <b>${res.correta})${escapeHtml(textoCorreta)}</b></p>` : ''}
+                `;
+                revContainer.appendChild(itemDiv);
+            });
         }
 
         function voltarConfigQuiz() {
@@ -1055,4 +1093,3 @@
     </script>
 </body>
 </html>
-```eof
