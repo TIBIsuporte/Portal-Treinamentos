@@ -377,18 +377,6 @@
             font-weight: 600;
         }
 
-        .option-item.correct {
-            border-color: #38a169;
-            background: #f0fff4;
-            color: #22543d;
-        }
-
-        .option-item.incorrect {
-            border-color: #e53e3e;
-            background: #fff5f5;
-            color: #742a2a;
-        }
-
         .quiz-footer-nav {
             display: flex;
             justify-content: space-between;
@@ -993,12 +981,27 @@
         }
 
         function selecionarOpcao(letraEscolhida, elementoDom) {
-            if (respostaSelecionadaUsuario !== null) return;
+            // Remove a classe 'selected' de todas as opções
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.classList.remove('selected');
+            });
 
+            // Adiciona a classe 'selected' apenas na opção clicada
+            elementoDom.classList.add('selected');
             respostaSelecionadaUsuario = letraEscolhida;
+
+            // Habilitar botão de avançar
+            const btnProxima = document.getElementById('btnProximaQuestao');
+            btnProxima.disabled = false;
+            btnProxima.style.backgroundColor = '#3182ce';
+        }
+
+        function proximaQuestao() {
+            if (respostaSelecionadaUsuario === null) return;
+
             const q = quizAtual[indiceQuestaoAtual];
             const correta = (q.resposta_correta || '').toLowerCase().trim();
-            const escolhida = letraEscolhida.toLowerCase().trim();
+            const escolhida = respostaSelecionadaUsuario.toLowerCase().trim();
             const acertou = (escolhida === correta);
 
             if (acertou) acertosQuiz++;
@@ -1012,25 +1015,6 @@
                 opcoes: { a: q.opcao_a, b: q.opcao_b, c: q.opcao_c, d: q.opcao_d }
             });
 
-            // Destacar acerto ou erro em tempo real
-            const itens = document.querySelectorAll('.option-item');
-            itens.forEach((item, index) => {
-                const letraAtual = ['a', 'b', 'c', 'd'][index];
-                if (letraAtual === correta) {
-                    item.classList.add('correct');
-                } else if (letraAtual === escolhida && !acertou) {
-                    item.classList.add('incorrect');
-                }
-                item.style.cursor = 'default';
-            });
-
-            // Habilitar botão de avançar
-            const btnProxima = document.getElementById('btnProximaQuestao');
-            btnProxima.disabled = false;
-            btnProxima.style.backgroundColor = '#3182ce';
-        }
-
-        function proximaQuestao() {
             indiceQuestaoAtual++;
             if (indiceQuestaoAtual < 10) {
                 carregarQuestaoAtual();
