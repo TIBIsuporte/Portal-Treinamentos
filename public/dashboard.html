@@ -34,7 +34,6 @@
             white-space: nowrap;
         }
 
-        /* Estilo para a frase centralizada no cabeçario */
         .header-quote {
             font-size: 0.95rem;
             color: #cbd5e0;
@@ -79,6 +78,7 @@
             padding: 0 40px;
             gap: 10px;
             box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
 
         .tab-btn {
@@ -91,6 +91,7 @@
             cursor: pointer;
             transition: color 0.2s, border-bottom 0.2s;
             border-bottom: 3px solid transparent;
+            white-space: nowrap;
         }
 
         .tab-btn:hover {
@@ -121,6 +122,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .section-title {
@@ -130,9 +133,8 @@
             padding-left: 10px;
         }
 
-        .search-box {
+        .search-box, .filter-select {
             padding: 8px 12px;
-            width: 300px;
             border: 1px solid #cbd5e0;
             border-radius: 4px;
             font-size: 0.95rem;
@@ -140,7 +142,7 @@
             transition: border-color 0.2s;
         }
 
-        .search-box:focus {
+        .search-box:focus, .filter-select:focus {
             border-color: #3182ce;
             box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
         }
@@ -204,6 +206,26 @@
             font-size: 2.5rem;
         }
 
+        .quiz-thumbnail-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            gap: 8px;
+        }
+
+        .quiz-thumbnail-placeholder span {
+            font-size: 2.5rem;
+        }
+
         .play-icon {
             position: absolute;
             top: 50%;
@@ -245,6 +267,159 @@
         .card-info p {
             font-size: 0.85rem;
             color: #718096;
+        }
+
+        /* Estilo da Área de Provas / Testes */
+        .quiz-config-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        .form-group select, .form-group input {
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2b6cb0;
+        }
+
+        /* Quiz Ativo */
+        .quiz-active-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .quiz-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .question-box h3 {
+            font-size: 1.2rem;
+            color: #1a202c;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .option-item {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            color: #2d3748;
+            background: #fff;
+        }
+
+        .option-item:hover {
+            border-color: #cbd5e0;
+            background: #f7fafc;
+        }
+
+        .option-item.selected {
+            border-color: #3182ce;
+            background: #ebf8ff;
+            color: #2b6cb0;
+            font-weight: 600;
+        }
+
+        .option-item.correct {
+            border-color: #38a169;
+            background: #f0fff4;
+            color: #22543d;
+        }
+
+        .option-item.incorrect {
+            border-color: #e53e3e;
+            background: #fff5f5;
+            color: #742a2a;
+        }
+
+        .quiz-footer-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        /* Resultado do Teste */
+        .quiz-result-container {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
+            display: none;
+        }
+
+        .result-score-badge {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #3182ce;
+            margin: 15px 0;
+        }
+
+        .result-message {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 30px;
         }
 
         /* Modals */
@@ -363,16 +538,14 @@
 
         @media (max-width: 768px) {
             .nav-tabs {
-                flex-direction: column;
                 padding: 10px;
-                text-align: center;
             }
             .section-header {
                 flex-direction: column;
                 gap: 15px;
                 align-items: flex-start;
             }
-            .search-box {
+            .search-box, .filter-select {
                 width: 100%;
             }
         }
@@ -395,6 +568,7 @@
     <nav class="nav-tabs">
         <button class="tab-btn active" onclick="trocarTab('videos')">🎬 Treinamentos em Vídeo</button>
         <button class="tab-btn" onclick="trocarTab('documentos')">📚 Manuais e Documentos</button>
+        <button class="tab-btn" onclick="trocarTab('testes')">✍️ Avaliações e Testes</button>
     </nav>
 
     <!-- CONTEÚDO: ABA VÍDEOS -->
@@ -423,6 +597,73 @@
         </div>
     </div>
 
+    <!-- CONTEÚDO: ABA TESTES E AVALIAÇÕES -->
+    <div id="tabTestes" class="tab-content">
+        <div class="container">
+            <!-- 1. Tela de Configuração do Teste -->
+            <div id="quizConfigView" class="quiz-config-card">
+                <h2 class="section-title" style="border:none; padding:0; margin-bottom:5px;">Gerador de Testes Randômicos</h2>
+                <p style="color: #718096; font-size: 0.95rem;">Selecione o tema e o nível de dificuldade para gerar uma prova personalizada direto do banco de dados.</p>
+                
+                <div class="form-group">
+                    <label for="quizCategoria">Categoria / Tema:</label>
+                    <select id="quizCategoria" class="filter-select">
+                        <option value="todos">🌐 Todas as Categorias (Geral)</option>
+                        <option value="Otica Básica">👓 Ótica Básica</option>
+                        <option value="Anatomia Ocular">👁️ Anatomia Ocular</option>
+                        <option value="Técnicas de Vendas">🤝 Técnicas de Vendas</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quizDificuldade">Nível de Dificuldade:</label>
+                    <select id="quizDificuldade" class="filter-select">
+                        <option value="todos">⭐ Todos os Níveis</option>
+                        <option value="Facil">Fácil</option>
+                        <option value="Medio">Médio</option>
+                        <option value="Dificil">Difícil</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quizQtd">Quantidade de Questões:</label>
+                    <select id="quizQtd" class="filter-select">
+                        <option value="5">5 Questões (Rápido)</option>
+                        <option value="10" selected>10 Questões (Padrão)</option>
+                        <option value="15">15 Questões (Avançado)</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" onclick="iniciarQuiz()">Iniciar Prova Agora</button>
+            </div>
+
+            <!-- 2. Tela de Execução da Prova -->
+            <div id="quizActiveView" class="quiz-active-container">
+                <div class="quiz-header-info">
+                    <span id="quizProgressInfo">Questão 1 de 10</span>
+                    <span id="quizTimer" style="color: #e53e3e;">⏱️ Respondendo...</span>
+                </div>
+                <div class="question-box">
+                    <h3 id="quizQuestionText">Carregando pergunta...</h3>
+                    <div id="quizOptionsList" class="options-list">
+                        <!-- As opções a, b, c, d entram aqui -->
+                    </div>
+                </div>
+                <div class="quiz-footer-nav">
+                    <button class="btn-primary" id="btnProximaQuestao" onclick="proximaQuestao()" style="background-color: #4a5568;" disabled>Próxima Questão</button>
+                </div>
+            </div>
+
+            <!-- 3. Tela de Resultados -->
+            <div id="quizResultView" class="quiz-result-container">
+                <h2 style="font-size: 1.8rem; color: #1a202c;">Avaliação Concluída!</h2>
+                <div id="resultScoreBadge" class="result-score-badge">0 / 0</div>
+                <p id="resultMessageText" class="result-message">Você concluiu o teste com sucesso.</p>
+                <button class="btn-primary" onclick="voltarConfigQuiz()">Fazer Novo Teste</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Universal (Vídeos e Documentos) -->
     <div id="mediaModal" class="modal">
         <div class="modal-content">
@@ -446,6 +687,13 @@
         let todosVideos = [];
         let todosDocumentos = [];
 
+        // Variáveis de Estado do Quiz
+        let questoesPool = [];
+        let quizAtual = [];
+        let indiceQuestaoAtual = 0;
+        let acertosQuiz = 0;
+        let respostaSelecionadaUsuario = null;
+
         // Inicialização Segura
         async function inicializarPortal() {
             try {
@@ -465,6 +713,7 @@
 
                 carregarVideos();
                 carregarDocumentos();
+                carregarQuestoesDoBanco();
 
             } catch (err) {
                 console.error('Erro:', err);
@@ -480,9 +729,12 @@
             if (aba === 'videos') {
                 document.querySelector('button[onclick="trocarTab(\'videos\')"]').classList.add('active');
                 document.getElementById('tabVideos').classList.add('active');
-            } else {
+            } else if (aba === 'documentos') {
                 document.querySelector('button[onclick="trocarTab(\'documentos\')"]').classList.add('active');
                 document.getElementById('tabDocumentos').classList.add('active');
+            } else if (aba === 'testes') {
+                document.querySelector('button[onclick="trocarTab(\'testes\')"]').classList.add('active');
+                document.getElementById('tabTestes').classList.add('active');
             }
         }
 
@@ -618,6 +870,160 @@
             modal.style.display = 'none';
         }
 
+        // --- SISTEMA DE AVALIAÇÕES E TESTES (QUIZ) ---
+        async function carregarQuestoesDoBanco() {
+            try {
+                const { data, error } = await supabaseClient.from('questoes').select('*');
+                if (error) {
+                    console.warn("Tabela 'questoes' ainda não criada no Supabase. Usando questões de demonstração.");
+                    questoesPool = obterQuestoesDemonstracao();
+                    return;
+                }
+                questoesPool = data && data.length > 0 ? data : obterQuestoesDemonstracao();
+            } catch (err) {
+                questoesPool = obterQuestoesDemonstracao();
+            }
+        }
+
+        function obterQuestoesDemonstracao() {
+            return [
+                { id: 1, categoria: "Otica Básica", dificuldade: "Facil", pergunta: "O que é miopia?", opcao_a: "Não enxergar de perto", opcao_b: "Não enxergar de longe", opcao_c: "Vista cansada", opcao_d: "Falta de dormir", resposta_correta: "b" },
+                { id: 2, categoria: "Otica Básica", dificuldade: "Facil", pergunta: "O que caracteriza a presbiopia?", opcao_b: "Dificuldade para enxergar de perto após os 40 anos", opcao_a: "Inchaço na córnea", opcao_c: "Perda total da visão noturna", opcao_d: "Excesso de lágrimas", resposta_correta: "b" },
+                { id: 3, categoria: "Anatomia Ocular", dificuldade: "Medio", pergunta: "Qual parte do olho atua como uma lente natural que foca a luz na retina?", opcao_a: "Córnea", opcao_b: "Cristalino", opcao_c: "Íris", opcao_d: "Pupila", resposta_correta: "b" },
+                { id: 4, categoria: "Anatomia Ocular", dificuldade: "Medio", pergunta: "O que regula a quantidade de luz que entra nos olhos?", opcao_a: "Retina", opcao_b: "Cristalino", opcao_c: "Íris (Pupila)", opcao_d: "Esclera", resposta_correta: "c" },
+                { id: 5, categoria: "Técnicas de Vendas", dificuldade: "Facil", pergunta: "Qual é o erro mais comum no atendimento de balcão segundo as técnicas de vendas?", opcao_a: "Falar pouco", opcao_b: "Falar demais e ouvir pouco o cliente", opcao_c: "Oferecer brindes", opcao_d: "Sorrir em excesso", resposta_correta: "b" },
+                { id: 6, categoria: "Técnicas de Vendas", dificuldade: "Dificil", pergunta: "O que significa criar 'Rapport' com o cliente?", opcao_a: "Oferecer descontos agressivos", opcao_b: "Criar conexão, empatia e confiança mútua", opcao_c: "Fechar a venda rapidamente", opcao_d: "Vender lentes antirreflexo", resposta_correta: "b" }
+            ];
+        }
+
+        function iniciarQuiz() {
+            const categoriaSel = document.getElementById('quizCategoria').value;
+            const dificuldadeSel = document.getElementById('quizDificuldade').value;
+            const qtdDesejada = parseInt(document.getElementById('quizQtd').value);
+
+            // Filtrar questões de acordo com as escolhas do usuário
+            let filtradas = questoesPool.filter(q => {
+                const matchCat = (categoriaSel === 'todos' || q.categoria === categoriaSel);
+                const matchDif = (dificuldadeSel === 'todos' || q.dificuldade === dificuldadeSel);
+                return matchCat && matchDif;
+            });
+
+            if (filtradas.length === 0) {
+                alert("Não há questões suficientes cadastradas para este filtro. Selecione 'Todas as Categorias' ou 'Todos os Níveis'.");
+                return;
+            }
+
+            // Embaralhar pool (Randomização)
+            filtradas.sort(() => Math.random() - 0.5);
+
+            // Selecionar o limite escolhido
+            quizAtual = filtradas.slice(0, qtdDesejada);
+            indiceQuestaoAtual = 0;
+            acertosQuiz = 0;
+
+            // Alternar visualização das telas internas da aba
+            document.getElementById('quizConfigView').style.display = 'none';
+            document.getElementById('quizResultView').style.display = 'none';
+            document.getElementById('quizActiveView').style.display = 'block';
+
+            carregarQuestaoAtual();
+        }
+
+        function carregarQuestaoAtual() {
+            respostaSelecionadaUsuario = null;
+            document.getElementById('btnProximaQuestao').disabled = true;
+            document.getElementById('btnProximaQuestao').style.backgroundColor = '#4a5568';
+
+            const q = quizAtual[indiceQuestaoAtual];
+            document.getElementById('quizProgressInfo').textContent = `Questão ${indiceQuestaoAtual + 1} de ${quizAtual.length}`;
+            document.getElementById('quizQuestionText').textContent = q.pergunta;
+
+            const listaOpcoes = document.getElementById('quizOptionsList');
+            listaOpcoes.innerHTML = '';
+
+            const letras = ['a', 'b', 'c', 'd'];
+            letras.forEach(letra => {
+                const textoOpcao = q[`opcao_${letra}`];
+                if (!textoOpcao) return; // Se não houver opção d por ex, pula
+
+                const divOpcao = document.createElement('div');
+                divOpcao.className = 'option-item';
+                divOpcao.innerHTML = `<b>${letra.toUpperCase()})</b> ${escapeHtml(textoOpcao)}`;
+                divOpcao.onclick = () => selecionarOpcao(letra, divOpcao);
+                listaOpcoes.appendChild(divOpcao);
+            });
+        }
+
+        function selecionarOpcao(letraEscolhida, elementoDom) {
+            // Se já respondeu esta questão, impede nova seleção
+            if (respostaSelecionadaUsuario !== null) return;
+
+            respostaSelecionadaUsuario = letraEscolhida;
+            const q = quizAtual[indiceQuestaoAtual];
+            const correta = q.resposta_correta;
+
+            // Destacar acerto ou erro em tempo real
+            const itens = document.querySelectorAll('.option-item');
+            itens.forEach((item, index) => {
+                const letraAtual = ['a', 'b', 'c', 'd'][index];
+                if (letraAtual === correta) {
+                    item.classList.add('correct');
+                } else if (letraAtual === letraEscolhida && letraEscolhida !== correta) {
+                    item.classList.add('incorrect');
+                }
+                item.style.cursor = 'default';
+            });
+
+            if (letraEscolhida === correta) {
+                acertosQuiz++;
+            }
+
+            // Habilitar botão de avançar
+            const btnProxima = document.getElementById('btnProximaQuestao');
+            btnProxima.disabled = false;
+            btnProxima.style.backgroundColor = '#3182ce';
+            if (indiceQuestaoAtual === quizAtual.length - 1) {
+                btnProxima.textContent = "Ver Resultado Final";
+            } else {
+                btnProxima.textContent = "Próxima Questão";
+            }
+        }
+
+        function proximaQuestao() {
+            indiceQuestaoAtual++;
+            if (indiceQuestaoAtual < quizAtual.length) {
+                carregarQuestaoAtual();
+            } else {
+                finalizarQuiz();
+            }
+        }
+
+        function finalizarQuiz() {
+            document.getElementById('quizActiveView').style.display = 'none';
+            document.getElementById('quizResultView').style.display = 'block';
+
+            const total = quizAtual.length;
+            const percentual = Math.round((acertosQuiz / total) * 100);
+
+            document.getElementById('resultScoreBadge').textContent = `${acertosQuiz} / ${total} (${percentual}%)`;
+
+            let msg = "";
+            if (percentual >= 80) {
+                msg = "🏆 Excelente! Você demonstra domínio completo sobre o conteúdo abordado.";
+            } else if (percentual >= 50) {
+                msg = "👍 Bom trabalho! Mas vale a pena revisar alguns manuais para aperfeiçoar o conhecimento.";
+            } else {
+                msg = "📚 É recomendável realizar uma nova leitura na aba de Manuais e Documentos e assistir aos vídeos de treinamento.";
+            }
+            document.getElementById('resultMessageText').textContent = msg;
+        }
+
+        function voltarConfigQuiz() {
+            document.getElementById('quizResultView').style.display = 'none';
+            document.getElementById('quizConfigView').style.display = 'block';
+        }
+
+        // Funções de Filtro de Vídeos e Documentos
         function filtrarVideos() {
             const termo = document.getElementById('searchVideoInput').value.toLowerCase().trim();
             const filtrados = todosVideos.filter(v => (v.titulo || '').toLowerCase().includes(termo) || (v.ministrante || '').toLowerCase().includes(termo));
@@ -649,3 +1055,4 @@
     </script>
 </body>
 </html>
+```eof
